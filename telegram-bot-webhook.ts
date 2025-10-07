@@ -36,7 +36,10 @@ const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 const PORT = process.env.PORT || 3000;
 
 // Get webhook URL from environment
-const WEBHOOK_URL = process.env.RAILWAY_PUBLIC_DOMAIN 
+// Railway provides RAILWAY_STATIC_URL or RAILWAY_PUBLIC_DOMAIN
+const WEBHOOK_URL = process.env.RAILWAY_STATIC_URL 
+  ? `${process.env.RAILWAY_STATIC_URL}/webhook`
+  : process.env.RAILWAY_PUBLIC_DOMAIN
   ? `https://${process.env.RAILWAY_PUBLIC_DOMAIN}/webhook`
   : process.env.WEBHOOK_URL;
 

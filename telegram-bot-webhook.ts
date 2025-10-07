@@ -36,12 +36,9 @@ const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 const PORT = process.env.PORT || 3000;
 
 // Get webhook URL from environment
-// Railway provides RAILWAY_STATIC_URL or RAILWAY_PUBLIC_DOMAIN
-const WEBHOOK_URL = process.env.RAILWAY_STATIC_URL 
-  ? `${process.env.RAILWAY_STATIC_URL}/webhook`
-  : process.env.RAILWAY_PUBLIC_DOMAIN
-  ? `https://${process.env.RAILWAY_PUBLIC_DOMAIN}/webhook`
-  : process.env.WEBHOOK_URL;
+// Railway does NOT provide a public URL automatically - you must set WEBHOOK_URL manually
+// After generating a domain in Railway, set WEBHOOK_URL to: https://your-app.up.railway.app/webhook
+const WEBHOOK_URL = process.env.WEBHOOK_URL;
 
 interface TelegramMessage {
   message_id: number;
@@ -425,7 +422,16 @@ async function handleUpdate(update: TelegramUpdate) {
  */
 async function setWebhook() {
   if (!WEBHOOK_URL) {
-    throw new Error("WEBHOOK_URL or RAILWAY_PUBLIC_DOMAIN must be set");
+    console.error("\n❌ ERROR: WEBHOOK_URL environment variable is not set!");
+    console.error("\n📋 To fix this:");
+    console.error("1. Go to Railway project → Settings → Networking");
+    console.error("2. Click 'Generate Domain' to get a public URL");
+    console.error("3. Copy the domain (e.g., https://your-app.up.railway.app)");
+    console.error("4. Go to Variables tab and add:");
+    console.error("   Name: WEBHOOK_URL");
+    console.error("   Value: https://your-app.up.railway.app/webhook");
+    console.error("5. Redeploy\n");
+    throw new Error("WEBHOOK_URL environment variable must be set. See instructions above.");
   }
 
   const url = `${TELEGRAM_BASE_URL}/setWebhook`;

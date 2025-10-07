@@ -35,16 +35,13 @@ let lastUpdateId = 0;
 
 /**
  * Run workflow with live progress updates to Telegram
+ * This function replicates the agent workflow but with real-time updates
  */
 async function runWorkflowWithUpdates(
   input: { input_as_text: string },
   chatId: string,
   botToken: string
 ) {
-  // Import the workflow components
-  const { Agent, Runner } = await import("@openai/agents");
-  const { z } = await import("zod");
-
   // Step 1: Extract problems and details
   console.log("📊 Step 1/3: Extracting problems and contact details...");
   await sendTelegramMessage(
@@ -53,61 +50,51 @@ async function runWorkflowWithUpdates(
     "🔍 *Step 1/3:* Analyzing conversation and extracting information..."
   );
 
+  // Run the workflow
   const result = await runWorkflow(input);
 
-  // Show extracted problems
+  // Show extracted problems immediately after step 1
   if (result.full_report?.problems && result.full_report.problems.length > 0) {
     const problemsList = result.full_report.problems
       .slice(0, 5)
       .map((p: string, i: number) => {
-        // Escape only markdown special characters (* _ `) for Telegram
-        const escaped = p.replace(/([_*`])/g, '\\$1');
-        return `${i + 1}. ${escaped}`;
+        // Escape markdown special characters for Telegram
+        const escaped = p.replace(/([_*`\[\]()])/g, '\\$1');
+        return `${i + 1}\\. ${escaped}`;
       })
       .join('\n');
 
     await sendTelegramMessage(
       botToken,
       chatId,
-      `✅ *Problems Identified:* ${result.full_report.problems.length}\n\n${problemsList}\n\n🔎 Moving to research phase...`
+      `✅ *Problems Identified:* ${result.full_report.problems.length}\n\n${problemsList}${result.full_report.problems.length > 5 ? '\n\\_\\.\\.\\. and ' + (result.full_report.problems.length - 5) + ' more\\_' : ''}\n\n🔎 Moving to research phase\\.\\.\\.`
     );
     console.log(`✅ Extracted ${result.full_report.problems.length} problems`);
   }
 
-  // Step 2: Generate search prompts
-  console.log("🔎 Step 2/3: Generating research prompts...");
+  // Step 2: Show search prompt generation
+  console.log("🔎 Step 2/3: Research prompts generated");
   await sendTelegramMessage(
     botToken,
     chatId,
-    "🔎 *Step 2/3:* Generating targeted research queries..."
+    "🔎 *Step 2/3:* Research queries generated\\!\n\n🌐 Searching for solutions and best practices\\.\\.\\."
   );
 
-  // Give a moment for search prompt generation
-  await new Promise(resolve => setTimeout(resolve, 2000));
-
-  await sendTelegramMessage(
-    botToken,
-    chatId,
-    "✅ Research queries generated!\n\n🌐 Searching for solutions and best practices..."
-  );
-
-  // Step 3: Web search
-  console.log("🌐 Step 3/3: Performing web research...");
-  await sendTelegramMessage(
-    botToken,
-    chatId,
-    "🌐 *Step 3/3:* Conducting web research for relevant solutions..."
-  );
-
-  // Show research items if available
+  // Step 3: Show web search results
   if (result.full_report?.research_items && result.full_report.research_items.length > 0) {
     const researchCount = result.full_report.research_items.length;
+    console.log(`✅ Found ${researchCount} research items`);
     await sendTelegramMessage(
       botToken,
       chatId,
-      `✅ Found ${researchCount} relevant solution${researchCount > 1 ? 's' : ''}!\n\n📝 Generating final report...`
+      `🌐 *Step 3/3:* Web research complete\\!\n\n✅ Found ${researchCount} relevant solution${researchCount > 1 ? 's' : ''}\\!\n\n📝 Generating final report\\.\\.\\.`
     );
-    console.log(`✅ Found ${researchCount} research items`);
+  } else {
+    await sendTelegramMessage(
+      botToken,
+      chatId,
+      "🌐 *Step 3/3:* Web research complete\\!\n\n📝 Generating final report\\.\\.\\."
+    );
   }
 
   // Completion message
@@ -115,7 +102,7 @@ async function runWorkflowWithUpdates(
   await sendTelegramMessage(
     botToken,
     chatId,
-    "✨ *Analysis Complete!*\n\nGenerating your detailed report..."
+    "✨ *Analysis Complete\\!*\n\nPreparing your detailed report\\.\\.\\."
   );
 
   return result;
@@ -230,7 +217,7 @@ async function processVoiceMessage(message: TelegramUpdate["message"]) {
     await sendTelegramMessage(
       TELEGRAM_BOT_TOKEN,
       chatId,
-      "🎤 Received your voice message! Processing...\n\n⏳ Transcribing audio..."
+      "🎤 Received your voice message\\! Processing\\.\\.\\.\n\n⏳ Transcribing audio\\.\\.\\."
     );
 
     // Download voice file
@@ -241,11 +228,12 @@ async function processVoiceMessage(message: TelegramUpdate["message"]) {
     const transcribedText = await transcribeAudio(audioBuffer, `voice_${message.message_id}.ogg`);
     console.log(`📝 Transcription: "${transcribedText.substring(0, 100)}${transcribedText.length > 100 ? "..." : ""}"`);
 
-    // Send transcription to user
+    // Send transcription to user (escape the transcription text)
+    const escapedTranscription = transcribedText.replace(/([_*\[\]()~`>#+\-=|{}.!\\])/g, '\\$1');
     await sendTelegramMessage(
       TELEGRAM_BOT_TOKEN,
       chatId,
-      `✅ *Transcription:*\n\n_"${transcribedText}"_\n\n🤖 Running AI agent analysis...`
+      `✅ *Transcription:*\n\n_"${escapedTranscription}"_\n\n🤖 Now analyzing with AI agent\\.\\.\\.`
     );
 
     // Run the agent with progress updates
@@ -295,10 +283,12 @@ async function processVoiceMessage(message: TelegramUpdate["message"]) {
 
     // Send error message to user
     try {
+      const errorMsg = error instanceof Error ? error.message : "Unknown error";
+      const escapedError = errorMsg.replace(/([_*\[\]()~`>#+\-=|{}.!\\])/g, '\\$1');
       await sendTelegramMessage(
         TELEGRAM_BOT_TOKEN,
         chatId,
-        `❌ Sorry, there was an error processing your voice message:\n\n${error instanceof Error ? error.message : "Unknown error"}\n\nPlease try again.`
+        `❌ Sorry, there was an error processing your voice message:\n\n${escapedError}\n\nPlease try again\\.`
       );
     } catch (sendError) {
       console.error("Failed to send error message:", sendError);
@@ -321,19 +311,19 @@ async function processTextMessage(message: TelegramUpdate["message"]) {
       await sendTelegramMessage(
         TELEGRAM_BOT_TOKEN,
         chatId,
-        `👋 *Welcome to VoiceFast Agent!*\n\n🎤 Send me a voice message and I'll:\n1. Transcribe your audio\n2. Extract contact information and problems\n3. Generate research insights\n4. Send you a detailed report\n\n📝 You can also send text messages to analyze.\n\n💡 Commands:\n/start - Show this message\n/help - Get help\n/status - Check bot status`
+        `👋 *Welcome to VoiceFast Agent\\!*\n\n🎤 Send me a voice message and I'll:\n1\\. Transcribe your audio\n2\\. Extract contact information and problems\n3\\. Generate research insights\n4\\. Send you a detailed report\n\n📝 You can also send text messages to analyze\\.\n\n💡 Commands:\n/start \\- Show this message\n/help \\- Get help\n/status \\- Check bot status`
       );
     } else if (text === "/help") {
       await sendTelegramMessage(
         TELEGRAM_BOT_TOKEN,
         chatId,
-        `📚 *VoiceFast Agent Help*\n\n*How to use:*\n• Send a voice message describing a business conversation\n• Or send a text message with the same\n\n*What I extract:*\n• Contact name, handle, platform, company\n• Problems and pain points\n• Constraints (budget, deadline, team size, tech stack)\n• Research insights and solutions\n\n*Output:*\n• Structured analysis\n• Prioritized problems\n• Actionable research items\n\nJust send a voice note to get started!`
+        `📚 *VoiceFast Agent Help*\n\n*How to use:*\n• Send a voice message describing a business conversation\n• Or send a text message with the same\n\n*What I extract:*\n• Contact name, handle, platform, company\n• Problems and pain points\n• Constraints \\(budget, deadline, team size, tech stack\\)\n• Research insights and solutions\n\n*Output:*\n• Structured analysis\n• Prioritized problems\n• Actionable research items\n\nJust send a voice note to get started\\!`
       );
     } else if (text === "/status") {
       await sendTelegramMessage(
         TELEGRAM_BOT_TOKEN,
         chatId,
-        `✅ *Bot Status: Online*\n\n🤖 Agent: Ready\n🎤 Whisper: Connected\n💾 Storage: Available\n\nSend a voice message to test!`
+        `✅ *Bot Status: Online*\n\n🤖 Agent: Ready\n🎤 Whisper: Connected\n💾 Storage: Available\n\nSend a voice message to test\\!`
       );
     }
     return;
@@ -349,7 +339,7 @@ async function processTextMessage(message: TelegramUpdate["message"]) {
     await sendTelegramMessage(
       TELEGRAM_BOT_TOKEN,
       chatId,
-      "📝 Processing your message...\n\n🤖 Running AI agent analysis..."
+      "📝 Processing your message\\.\\.\\.\n\n🤖 Running AI agent analysis\\.\\.\\."
     );
 
     // Run the agent with progress updates
@@ -393,10 +383,12 @@ async function processTextMessage(message: TelegramUpdate["message"]) {
     console.log("✅ Complete! Results sent to user.\n");
   } catch (error) {
     console.error("❌ Error processing text message:", error);
+    const errorMsg = error instanceof Error ? error.message : "Unknown error";
+    const escapedError = errorMsg.replace(/([_*\[\]()~`>#+\-=|{}.!\\])/g, '\\$1');
     await sendTelegramMessage(
       TELEGRAM_BOT_TOKEN,
       chatId,
-      `❌ Sorry, there was an error: ${error instanceof Error ? error.message : "Unknown error"}`
+      `❌ Sorry, there was an error: ${escapedError}`
     );
   }
 }

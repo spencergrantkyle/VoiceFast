@@ -50,6 +50,14 @@ export async function sendTelegramMessage(
 }
 
 /**
+ * Escape special characters for Telegram MarkdownV2
+ */
+function escapeMarkdown(text: string): string {
+  // Escape special characters for MarkdownV2
+  return text.replace(/([_*\[\]()~`>#+\-=|{}.!\\])/g, '\\$1');
+}
+
+/**
  * Format agent results for Telegram message
  */
 export function formatAgentResultsForTelegram(result: any): string {
@@ -60,29 +68,28 @@ export function formatAgentResultsForTelegram(result: any): string {
   
   // Telegram has a 4096 character limit per message
   let message = `🤖 *VoiceFast Agent Report*\n\n`;
-  message += `📅 *Generated:* ${new Date().toLocaleString()}\n\n`;
+  message += `📅 *Generated:* ${escapeMarkdown(new Date().toLocaleString())}\n\n`;
   
   message += `👤 *Contact Information*\n`;
-  message += `• Name: ${contactName}\n`;
-  message += `• Company: ${company}\n`;
+  message += `• Name: ${escapeMarkdown(contactName)}\n`;
+  message += `• Company: ${escapeMarkdown(company)}\n`;
   
   if (result.full_report.contact_handle) {
-    message += `• Handle: ${result.full_report.contact_handle}\n`;
+    message += `• Handle: ${escapeMarkdown(result.full_report.contact_handle)}\n`;
   }
   if (result.full_report.contact_platform) {
-    message += `• Platform: ${result.full_report.contact_platform}\n`;
+    message += `• Platform: ${escapeMarkdown(result.full_report.contact_platform)}\n`;
   }
   message += `\n`;
   
-  message += `🚨 *Problems Identified* (${problemCount})\n`;
+  message += `🚨 *Problems Identified* \\(${problemCount}\\)\n`;
   if (problems.length > 0) {
     problems.slice(0, 5).forEach((problem: string, idx: number) => {
-      // Escape only markdown special characters (* _ `) for Telegram
-      const escapedProblem = problem.replace(/([_*`])/g, '\\$1');
-      message += `${idx + 1}. ${escapedProblem}\n`;
+      const escapedProblem = escapeMarkdown(problem);
+      message += `${idx + 1}\\. ${escapedProblem}\n`;
     });
     if (problems.length > 5) {
-      message += `_... and ${problems.length - 5} more_\n`;
+      message += `_\\.\\.\\.and ${problems.length - 5} more_\n`;
     }
   }
   message += `\n`;
@@ -92,10 +99,10 @@ export function formatAgentResultsForTelegram(result: any): string {
     const constraints = result.full_report.constraints;
     if (constraints.budget || constraints.deadline || constraints.team_size || constraints.stack) {
       message += `📋 *Constraints*\n`;
-      if (constraints.budget) message += `• Budget: ${constraints.budget}\n`;
-      if (constraints.deadline) message += `• Deadline: ${constraints.deadline}\n`;
-      if (constraints.team_size) message += `• Team Size: ${constraints.team_size}\n`;
-      if (constraints.stack) message += `• Stack: ${constraints.stack}\n`;
+      if (constraints.budget) message += `• Budget: ${escapeMarkdown(constraints.budget)}\n`;
+      if (constraints.deadline) message += `• Deadline: ${escapeMarkdown(constraints.deadline)}\n`;
+      if (constraints.team_size) message += `• Team Size: ${escapeMarkdown(constraints.team_size)}\n`;
+      if (constraints.stack) message += `• Stack: ${escapeMarkdown(constraints.stack)}\n`;
       message += `\n`;
     }
   }
@@ -104,12 +111,12 @@ export function formatAgentResultsForTelegram(result: any): string {
   if (result.full_report.research_items && result.full_report.research_items.length > 0) {
     message += `🔍 *Research Items*\n`;
     result.full_report.research_items.slice(0, 3).forEach((item: any, idx: number) => {
-      message += `${idx + 1}. *${item.title}*\n`;
-      message += `   ${item.url}\n`;
-      message += `   Impact: ${item.impact}/10 | Effort: ${item.effort}/10\n`;
+      message += `${idx + 1}\\. *${escapeMarkdown(item.title)}*\n`;
+      message += `   ${escapeMarkdown(item.url)}\n`;
+      message += `   Impact: ${item.impact}/10 \\| Effort: ${item.effort}/10\n`;
     });
     if (result.full_report.research_items.length > 3) {
-      message += `_... and ${result.full_report.research_items.length - 3} more_\n`;
+      message += `_\\.\\.\\.and ${result.full_report.research_items.length - 3} more_\n`;
     }
   }
   

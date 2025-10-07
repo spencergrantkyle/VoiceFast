@@ -245,7 +245,7 @@ async function processVoiceMessage(message: TelegramMessage) {
     );
 
     // Format and send final results
-    const finalMessage = formatAgentResultsForTelegram(agentResult, transcribedText);
+    const finalMessage = formatAgentResultsForTelegram(agentResult);
     await sendTelegramMessage(
       TELEGRAM_BOT_TOKEN,
       chatId,
@@ -264,7 +264,7 @@ async function processVoiceMessage(message: TelegramMessage) {
       );
 
       try {
-        await saveToNotionWithRetry(agentResult, transcribedText);
+        await saveToNotionWithRetry(agentResult, "voice");
         console.log("✅ Successfully saved to Notion");
         await sendTelegramMessage(
           TELEGRAM_BOT_TOKEN,
@@ -359,7 +359,7 @@ async function processTextMessage(message: TelegramMessage) {
       );
 
       // Format and send results
-      const finalMessage = formatAgentResultsForTelegram(agentResult, text);
+      const finalMessage = formatAgentResultsForTelegram(agentResult);
       await sendTelegramMessage(
         TELEGRAM_BOT_TOKEN,
         chatId,
@@ -376,7 +376,7 @@ async function processTextMessage(message: TelegramMessage) {
         );
 
         try {
-          await saveToNotionWithRetry(agentResult, text);
+          await saveToNotionWithRetry(agentResult, "text");
           console.log("✅ Successfully saved to Notion");
           await sendTelegramMessage(
             TELEGRAM_BOT_TOKEN,

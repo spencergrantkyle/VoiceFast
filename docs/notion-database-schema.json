@@ -1,0 +1,115 @@
+{
+  "database_id": "a4a88543-0c2a-4f71-be25-0b87d601c435",
+  "database_name": "OpenAI Agent Contacts",
+  "database_url": "https://www.notion.so/afb8a725775d430fa6b2fe72655f5c2d",
+  "note": "Schema extracted from screenshot - Property IDs are placeholders and will be auto-matched",
+  "properties": {
+    "Name": {
+      "type": "title",
+      "required": true,
+      "description": "Contact name (title field)"
+    },
+    "Company": {
+      "type": "rich_text",
+      "description": "Company name"
+    },
+    "Contact Handle": {
+      "type": "rich_text",
+      "description": "Contact handle/username"
+    },
+    "Platform": {
+      "type": "select",
+      "description": "Platform where contact was made"
+    },
+    "Problems Count": {
+      "type": "number",
+      "description": "Number of problems identified"
+    },
+    "Research Count": {
+      "type": "number",
+      "description": "Number of research items"
+    },
+    "Status": {
+      "type": "select",
+      "description": "Contact status"
+    },
+    "Source": {
+      "type": "select",
+      "description": "Source type (voice/text)"
+    },
+    "Created At": {
+      "type": "date",
+      "description": "Creation date"
+    },
+    "Budget": {
+      "type": "rich_text",
+      "description": "Budget information"
+    },
+    "Deadline": {
+      "type": "rich_text",
+      "description": "Deadline information"
+    },
+    "Team Size": {
+      "type": "rich_text",
+      "description": "Team size information"
+    },
+    "Tech Stack": {
+      "type": "rich_text",
+      "description": "Technology stack"
+    },
+    "Top Solution": {
+      "type": "rich_text",
+      "description": "Top solution identified"
+    },
+    "Notion URL": {
+      "type": "url",
+      "description": "Notion page URL"
+    },
+    "Local File": {
+      "type": "files",
+      "description": "Local file attachments"
+    },
+    "Problems": {
+      "type": "rich_text",
+      "description": "Problems description"
+    }
+  },
+  "writable_properties": [
+    "Name",
+    "Company",
+    "Contact Handle",
+    "Platform",
+    "Problems Count",
+    "Research Count",
+    "Status",
+    "Source",
+    "Created At",
+    "Budget",
+    "Deadline",
+    "Team Size",
+    "Tech Stack",
+    "Top Solution",
+    "Notion URL",
+    "Local File",
+    "Problems"
+  ],
+  "mapping_recommendations": {
+    "agent_to_notion": {
+      "contact_name": "Name",
+      "company": "Company",
+      "contact_handle": "Contact Handle",
+      "contact_platform": "Platform",
+      "problems_count": "Problems Count",
+      "research_count": "Research Count",
+      "status": "Status",
+      "source": "Source",
+      "budget": "Budget",
+      "deadline": "Deadline",
+      "team_size": "Team Size",
+      "tech_stack": "Tech Stack",
+      "top_solution": "Top Solution",
+      "problems_description": "Problems"
+    }
+  }
+}
+

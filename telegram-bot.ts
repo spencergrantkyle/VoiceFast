@@ -50,7 +50,7 @@ async function runWorkflowWithUpdates(
   await sendTelegramMessage(
     botToken,
     chatId,
-    "🔍 *Step 1/3:* Analyzing conversation and extracting information\\.\\.\\."
+    "🔍 *Step 1/3:* Analyzing conversation and extracting information..."
   );
 
   const result = await runWorkflow(input);
@@ -60,16 +60,16 @@ async function runWorkflowWithUpdates(
     const problemsList = result.full_report.problems
       .slice(0, 5)
       .map((p: string, i: number) => {
-        // Escape special Markdown characters for Telegram
-        const escaped = p.replace(/[_*[\]()~`>#+=|{}.!-]/g, '\\$&');
-        return `${i + 1}\\. ${escaped}`;
+        // Escape only markdown special characters (* _ `) for Telegram
+        const escaped = p.replace(/([_*`])/g, '\\$1');
+        return `${i + 1}. ${escaped}`;
       })
       .join('\n');
 
     await sendTelegramMessage(
       botToken,
       chatId,
-      `✅ *Problems Identified:* ${result.full_report.problems.length}\n\n${problemsList}\n\n🔎 Moving to research phase\\.\\.\\.`
+      `✅ *Problems Identified:* ${result.full_report.problems.length}\n\n${problemsList}\n\n🔎 Moving to research phase...`
     );
     console.log(`✅ Extracted ${result.full_report.problems.length} problems`);
   }
@@ -79,7 +79,7 @@ async function runWorkflowWithUpdates(
   await sendTelegramMessage(
     botToken,
     chatId,
-    "🔎 *Step 2/3:* Generating targeted research queries\\.\\.\\."
+    "🔎 *Step 2/3:* Generating targeted research queries..."
   );
 
   // Give a moment for search prompt generation
@@ -88,7 +88,7 @@ async function runWorkflowWithUpdates(
   await sendTelegramMessage(
     botToken,
     chatId,
-    "✅ Research queries generated\\!\n\n🌐 Searching for solutions and best practices\\.\\.\\."
+    "✅ Research queries generated!\n\n🌐 Searching for solutions and best practices..."
   );
 
   // Step 3: Web search
@@ -96,7 +96,7 @@ async function runWorkflowWithUpdates(
   await sendTelegramMessage(
     botToken,
     chatId,
-    "🌐 *Step 3/3:* Conducting web research for relevant solutions\\.\\.\\."
+    "🌐 *Step 3/3:* Conducting web research for relevant solutions..."
   );
 
   // Show research items if available
@@ -105,7 +105,7 @@ async function runWorkflowWithUpdates(
     await sendTelegramMessage(
       botToken,
       chatId,
-      `✅ Found ${researchCount} relevant solution${researchCount > 1 ? 's' : ''}\\!\n\n📝 Generating final report\\.\\.\\.`
+      `✅ Found ${researchCount} relevant solution${researchCount > 1 ? 's' : ''}!\n\n📝 Generating final report...`
     );
     console.log(`✅ Found ${researchCount} research items`);
   }
@@ -115,7 +115,7 @@ async function runWorkflowWithUpdates(
   await sendTelegramMessage(
     botToken,
     chatId,
-    "✨ *Analysis Complete\\!*\n\nGenerating your detailed report\\.\\.\\."
+    "✨ *Analysis Complete!*\n\nGenerating your detailed report..."
   );
 
   return result;
@@ -321,19 +321,19 @@ async function processTextMessage(message: TelegramUpdate["message"]) {
       await sendTelegramMessage(
         TELEGRAM_BOT_TOKEN,
         chatId,
-        `👋 *Welcome to VoiceFast Agent!*\n\n🎤 Send me a voice message and I'll:\n1\\. Transcribe your audio\n2\\. Extract contact information and problems\n3\\. Generate research insights\n4\\. Send you a detailed report\n\n📝 You can also send text messages to analyze\\.\n\n💡 Commands:\n/start \\- Show this message\n/help \\- Get help\n/status \\- Check bot status`
+        `👋 *Welcome to VoiceFast Agent!*\n\n🎤 Send me a voice message and I'll:\n1. Transcribe your audio\n2. Extract contact information and problems\n3. Generate research insights\n4. Send you a detailed report\n\n📝 You can also send text messages to analyze.\n\n💡 Commands:\n/start - Show this message\n/help - Get help\n/status - Check bot status`
       );
     } else if (text === "/help") {
       await sendTelegramMessage(
         TELEGRAM_BOT_TOKEN,
         chatId,
-        `📚 *VoiceFast Agent Help*\n\n*How to use:*\n• Send a voice message describing a business conversation\n• Or send a text message with the same\n\n*What I extract:*\n• Contact name, handle, platform, company\n• Problems and pain points\n• Constraints \\(budget, deadline, team size, tech stack\\)\n• Research insights and solutions\n\n*Output:*\n• Structured analysis\n• Prioritized problems\n• Actionable research items\n\nJust send a voice note to get started\\!`
+        `📚 *VoiceFast Agent Help*\n\n*How to use:*\n• Send a voice message describing a business conversation\n• Or send a text message with the same\n\n*What I extract:*\n• Contact name, handle, platform, company\n• Problems and pain points\n• Constraints (budget, deadline, team size, tech stack)\n• Research insights and solutions\n\n*Output:*\n• Structured analysis\n• Prioritized problems\n• Actionable research items\n\nJust send a voice note to get started!`
       );
     } else if (text === "/status") {
       await sendTelegramMessage(
         TELEGRAM_BOT_TOKEN,
         chatId,
-        `✅ *Bot Status: Online*\n\n🤖 Agent: Ready\n🎤 Whisper: Connected\n💾 Storage: Available\n\nSend a voice message to test\\!`
+        `✅ *Bot Status: Online*\n\n🤖 Agent: Ready\n🎤 Whisper: Connected\n💾 Storage: Available\n\nSend a voice message to test!`
       );
     }
     return;

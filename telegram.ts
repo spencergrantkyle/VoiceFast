@@ -77,12 +77,12 @@ export function formatAgentResultsForTelegram(result: any): string {
   message += `🚨 *Problems Identified* (${problemCount})\n`;
   if (problems.length > 0) {
     problems.slice(0, 5).forEach((problem: string, idx: number) => {
-      // Escape special markdown characters
-      const escapedProblem = problem.replace(/[_*[\]()~`>#+=|{}.!-]/g, '\\$&');
-      message += `${idx + 1}\\. ${escapedProblem}\n`;
+      // Escape only markdown special characters (* _ `) for Telegram
+      const escapedProblem = problem.replace(/([_*`])/g, '\\$1');
+      message += `${idx + 1}. ${escapedProblem}\n`;
     });
     if (problems.length > 5) {
-      message += `_\\.\\.\\. and ${problems.length - 5} more_\n`;
+      message += `_... and ${problems.length - 5} more_\n`;
     }
   }
   message += `\n`;
@@ -104,12 +104,12 @@ export function formatAgentResultsForTelegram(result: any): string {
   if (result.full_report.research_items && result.full_report.research_items.length > 0) {
     message += `🔍 *Research Items*\n`;
     result.full_report.research_items.slice(0, 3).forEach((item: any, idx: number) => {
-      message += `${idx + 1}\\. *${item.title}*\n`;
+      message += `${idx + 1}. *${item.title}*\n`;
       message += `   ${item.url}\n`;
-      message += `   Impact: ${item.impact}/10 \\| Effort: ${item.effort}/10\n`;
+      message += `   Impact: ${item.impact}/10 | Effort: ${item.effort}/10\n`;
     });
     if (result.full_report.research_items.length > 3) {
-      message += `_\\.\\.\\. and ${result.full_report.research_items.length - 3} more_\n`;
+      message += `_... and ${result.full_report.research_items.length - 3} more_\n`;
     }
   }
   

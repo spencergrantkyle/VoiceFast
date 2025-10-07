@@ -264,13 +264,22 @@ async function processVoiceMessage(message: TelegramMessage) {
       );
 
       try {
-        await saveToNotionWithRetry(agentResult, "voice");
+        const notionUrl = await saveToNotionWithRetry(agentResult, "voice");
         console.log("✅ Successfully saved to Notion");
-        await sendTelegramMessage(
-          TELEGRAM_BOT_TOKEN,
-          chatId,
-          "✅ Results saved to Notion\\!"
-        );
+        
+        if (notionUrl) {
+          await sendTelegramMessage(
+            TELEGRAM_BOT_TOKEN,
+            chatId,
+            `✅ Results saved to Notion\\!\n\n🔗 [View in Notion](${notionUrl})`
+          );
+        } else {
+          await sendTelegramMessage(
+            TELEGRAM_BOT_TOKEN,
+            chatId,
+            "✅ Results saved to Notion\\!"
+          );
+        }
       } catch (notionError) {
         console.error("⚠️  Failed to save to Notion:", notionError);
         await sendTelegramMessage(
@@ -376,13 +385,22 @@ async function processTextMessage(message: TelegramMessage) {
         );
 
         try {
-          await saveToNotionWithRetry(agentResult, "text");
+          const notionUrl = await saveToNotionWithRetry(agentResult, "text");
           console.log("✅ Successfully saved to Notion");
-          await sendTelegramMessage(
-            TELEGRAM_BOT_TOKEN,
-            chatId,
-            "✅ Results saved to Notion\\!"
-          );
+          
+          if (notionUrl) {
+            await sendTelegramMessage(
+              TELEGRAM_BOT_TOKEN,
+              chatId,
+              `✅ Results saved to Notion\\!\n\n🔗 [View in Notion](${notionUrl})`
+            );
+          } else {
+            await sendTelegramMessage(
+              TELEGRAM_BOT_TOKEN,
+              chatId,
+              "✅ Results saved to Notion\\!"
+            );
+          }
         } catch (notionError) {
           console.error("⚠️  Failed to save to Notion:", notionError);
         }

@@ -7,12 +7,14 @@
   "scripts": {
     "build": "tsc",
     "dev": "tsx watch scripts/run-agent.ts",
-    "start": "tsx telegram-bot.ts",
+    "start": "tsx telegram-bot-webhook.ts",
     "run": "tsx scripts/run-agent.ts",
     "type-check": "tsc --noEmit",
     "get-chat-id": "tsx scripts/get-telegram-chat-id.ts",
     "bot": "tsx telegram-bot.ts",
-    "bot:dev": "tsx watch telegram-bot.ts"
+    "bot:dev": "tsx watch telegram-bot.ts",
+    "bot:webhook": "tsx telegram-bot-webhook.ts",
+    "bot:webhook:dev": "tsx watch telegram-bot-webhook.ts"
   },
   "keywords": [
     "openai",

@@ -55,11 +55,11 @@ NODE_ENV=production
 
 Railway auto-detects from `package.json`, but verify:
 
-- **Build Command**: `npm run build` (optional, uses tsx directly)
-- **Start Command**: `npm run bot`
+- **Build Command**: `npm install` (automatic)
+- **Start Command**: `npm start` (runs webhook bot)
 - **Node Version**: 18.x or higher
 
-The `railway.json` file is already configured:
+The `railway.json` file is already configured for **webhook mode**:
 
 ```json
 {
@@ -68,12 +68,14 @@ The `railway.json` file is already configured:
     "builder": "NIXPACKS"
   },
   "deploy": {
-    "startCommand": "npm run bot",
+    "startCommand": "npm start",
     "restartPolicyType": "ON_FAILURE",
     "restartPolicyMaxRetries": 10
   }
 }
 ```
+
+**Note:** Railway uses webhook mode for production (no polling conflicts). See [RAILWAY_WEBHOOK_SETUP.md](docs/RAILWAY_WEBHOOK_SETUP.md) for details.
 
 ### Step 5: Deploy
 
